@@ -34,10 +34,14 @@ send_notification() {
   local bell=$'\007'
   local osc9="${esc}]9;${message}${bell}"
 
+  # Write directly to the terminal, not stdout (which hooks may capture).
+  local tty
+  tty=$(tty 2>/dev/null) || tty="/dev/tty"
+
   if [[ -n "${TMUX:-}" ]]; then
-    printf '%s' "${esc}Ptmux;${esc}${osc9}${esc}\\"
+    printf '%s' "${esc}Ptmux;${esc}${osc9}${esc}\\" > "$tty"
   else
-    printf '%s' "$osc9"
+    printf '%s' "$osc9" > "$tty"
   fi
 }
 
